@@ -14,9 +14,8 @@ if any function modified any global array at a certain index and didn't modify t
 the data would be inconsistent
 
 ### 4- Date is stored as a string
-There is no validation for order date entry process
+There is no validation for order date entry process and stored as string 
 
-### 5- Fixed memory and data waste
-The codebase depends on fixed size arrays, so we cant for example add new order if the array is full 
-Additionally, for example `string customerNames[MAX_CUSTOMERS];` reserves memory in an array that might not be used  
+### 5- Data waste
+for example `string customerNames[MAX_CUSTOMERS];` reserves memory in an array that might not be used  
 a `list` would be better
