@@ -14,15 +14,15 @@ public class MarketManager
     private readonly List<Product> _products = [];
     private readonly List<Order> _orders = [];
 
-    private Customer? FindCustomer(int id) => _customers.FirstOrDefault(c => c.CustomerId == id);
-    private Product? FindProduct(int id) => _products.FirstOrDefault(p => p.ProductId == id);
-    private Order? FindOrder(int id) => _orders.FirstOrDefault(o => o.OrderId == id);
+    private Customer? _FindCustomer(int id) => _customers.FirstOrDefault(c => c.CustomerId == id);
+    private Product? _FindProduct(int id) => _products.FirstOrDefault(p => p.ProductId == id);
+    private Order? _FindOrder(int id) => _orders.FirstOrDefault(o => o.OrderId == id);
 
     public Result AddCustomer(Customer customer) {
         if (_customers.Count >= MaxCustomers)
             return Result.Failure("ERROR: customer list is full.");
 
-        if (FindCustomer(customer.CustomerId) != null)
+        if (_FindCustomer(customer.CustomerId) != null)
             return Result.Failure($"ERROR: customer id {customer.CustomerId} already exists.");
 
         _customers.Add(customer);
@@ -40,7 +40,7 @@ public class MarketManager
         if (_products.Count >= MaxProducts)
             return Result.Failure("ERROR: product list is full.");
 
-        if (FindProduct(product.ProductId) != null)
+        if (_FindProduct(product.ProductId) != null)
             return Result.Failure($"ERROR: product id {product.ProductId} already exists.");
 
         _products.Add(product);
@@ -58,10 +58,13 @@ public class MarketManager
         if (_orders.Count >= MaxOrders)
             return Result.Failure("ERROR: order list is full.");
 
-        if (FindOrder(orderId) != null)
+        if (orderId < 0)
+            return Result.Failure("ERROR: Invalid Negative order id");
+        
+        if (_FindOrder(orderId) != null)
             return Result.Failure($"ERROR: order id {orderId} already exists.");
 
-        Customer? customer = FindCustomer(customerId);
+        Customer? customer = _FindCustomer(customerId);
         if (customer == null)
             return Result.Failure($"ERROR: customer id {customerId} not found.");
 
@@ -70,7 +73,7 @@ public class MarketManager
     }
 
     public Result AddLineToOrder(int orderId, int productId, int quantity) {
-        var order = FindOrder(orderId);
+        var order = _FindOrder(orderId);
         if (order == null)
             return Result.Failure($"ERROR: order id {orderId} not found.");
 
@@ -80,7 +83,7 @@ public class MarketManager
         if (order.OrderIsFull)
             return Result.Failure("ERROR: order has too many lines.");
 
-        var product = FindProduct(productId);
+        var product = _FindProduct(productId);
         if (product == null)
             return Result.Failure($"ERROR: product id {productId} not found.");
 
@@ -97,7 +100,7 @@ public class MarketManager
     }
 
     public Result MarkOrderPaid(int orderId) {
-        var order = FindOrder(orderId);
+        var order = _FindOrder(orderId);
         if (order == null)
             return Result.Failure($"ERROR: order id {orderId} not found.");
 
@@ -125,5 +128,14 @@ public class MarketManager
         foreach (var order in _orders) {
             order.PrintOrder();
         }
+    }
+
+    public Result PrintOrderByID(int id) {
+        if (id < 0) return Result.Failure("ERROR: Invalid negative Order ID");
+        var order = _FindOrder(id);
+        if (order == null) return Result.Failure("ERROR: order not found.");
+
+        order.PrintOrder();
+        return Result.Success();
     }
 }
